@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | Preferences{% endblock %}
+
+{% block content %}
+<div class="page-shell narrow">
+    <div class="page-top">
+        <div>
+            <span class="eyebrow">NOTIFICATIONS</span>
+            <h1>Notification Preferences</h1>
+            <p>Choose your preferred communication channel for civic alerts.</p>
+        </div>
+    </div>
+
+    <section class="panel">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div>
+                    <label for="id_preferred_channel">Preferred Channel</label>
+                    <select name="preferred_channel" id="id_preferred_channel" class="form-control">
+                        {% for k, v in choices %}
+                            <option value="{{ k }}" {% if preference.preferred_channel == k %}selected{% endif %}>
+                                {{ v }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">
+                Save Preferences
+            </button>
+        </form>
+    </section>
+</div>
+{% endblock %}

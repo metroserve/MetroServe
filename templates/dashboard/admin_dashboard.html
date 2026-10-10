@@ -1,0 +1,52 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Admin Command{% endblock %}{% block content %}<div
+    class="page-shell">
+    <div class="page-top reveal">
+        <div><span class="eyebrow">SYSTEM ADMINISTRATION</span>
+            <h1>MetroServe Control Room</h1>
+            <p>High-level oversight of residents, staff, service requests and municipal routing.</p>
+        </div><a class="btn btn-secondary" href="{% url 'admin:index' %}">Open Django Admin</a>
+    </div>
+    <div class="stats-grid reveal">
+        <div class="metric"><span>Total service requests</span><strong>{{total}}</strong><small>System-wide</small>
+        </div>
+        <div class="metric accent"><span>Open requests</span><strong>{{open}}</strong><small>Active workload</small>
+        </div>
+        <div class="metric danger"><span>Urgent</span><strong>{{urgent}}</strong><small>Priority queue</small></div>
+        <div class="metric"><span>Resolved</span><strong>{{resolved}}</strong><small>Closed or resolved</small></div>
+    </div>
+    <div class="two-col">
+        <section class="panel">
+            <div class="panel-head">
+                <div><span class="eyebrow">SYSTEM ACTIVITY</span>
+                    <h2>Latest requests</h2>
+                </div>
+            </div>
+            <div class="request-list">{% for c in recent %}<div class="request-row"></div>
+                    <div class="request-icon">M</div>
+                    <div class="request-main"><strong>{{c.reference_number}} ·
+                            {{c.title}}</strong><span>{{c.citizen.get_full_name|default:c.citizen.username}} •
+                            {{c.department|default:'Unassigned'}}</span></div><span
+                        class="status status-{{c.status}}">{{c.get_status_display}}</span><span class="chevron">›</span>
+                </a>{% empty %}<div class="empty-state">
+                    <h3>No activity</h3>
+                </div>{% endfor %}</div>
+        </section>
+        <aside class="panel"><span class="eyebrow">DIRECTORY</span>
+            <h2>Platform users</h2>
+            <div class="metric" style="margin-top:15px"><span>Citizens</span><strong>{{citizen_count}}</strong></div>
+            <div class="metric" style="margin-top:10px"><span>Staff</span><strong>{{staff_count}}</strong></div>
+            <div class="tool-stack" style="margin-top:15px"><a href="{% url 'admin:index' %}"><b>Manage users &
+                        profiles</b><span>Upload profile pictures and administer accounts →</span></a><a
+                    href="{% url 'reports_dashboard' %}"><b>Open analytics</b><span>Operational reports →</span></a>
+            </div>
+        </aside>
+    </div>
+</div>
+<div class="auth-foot" style="margin-top: 24px; text-align: center;">
+    <a href="{% url 'staff_login' %}">Municipal Staff Console Login</a>
+    <span> · </span>
+    <a href="{% url 'login' %}">Resident Login</a>
+    <span> · </span>
+    <a href="{% url 'logout' %}">Sign out</a>
+</div>
+{% endblock %}

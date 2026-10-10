@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}
+    MetroServe | Track {{ complaint.reference_number }}
+{% endblock %}
+
+{% block content %}
+
+<div class="track-shell reveal">
+
+    <div class="track-hero">
+        <span class="eyebrow">PUBLIC REQUEST TRACKING</span>
+
+        <h1>{{ complaint.reference_number }}</h1>
+
+        <p>{{ complaint.title }} • {{ complaint.location }}</p>
+
+        <span class="status status-{{ complaint.status }}">
+            {{ complaint.get_status_display }}
+        </span>
+    </div>
+
+    <div class="track-grid">
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <span class="eyebrow">LIVE STATUS</span>
+                    <h2>Service request progress</h2>
+                </div>
+            </div>
+
+            <div class="track-steps">
+
+                <div class="track-step active">
+                    <span>01</span>
+                    <div>
+                        <b>Request received</b>
+                        <small>Your report has entered the MetroServe network.</small>
+                    </div>
+                </div>
+
+                <div class="track-step {% if complaint.status == 'assigned' or complaint.status == 'in_progress' or complaint.status == 'resolved' or complaint.status == 'closed' %}active{% endif %}">
+                    <span>02</span>
+                    <div>
+                        <b>Department handling</b>
+                        <small>
+                            {% if complaint.department %}
+                                {{ complaint.department.name }}
+                            {% else %}
+                                Department assignment pending
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="track-step {% if complaint.status == 'resolved' or complaint.status == 'closed' %}active{% endif %}">
+                    <span>03</span>
+                    <div>
+                        <b>Resolution</b>
+                        <small>
+                            {% if complaint.resolution_notes %}
+                                {{ complaint.resolution_notes }}
+                            {% else %}
+                                Resolution notes will appear here when available.
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <aside class="panel">
+            <span class="eyebrow">REQUEST DETAILS</span>
+
+            <dl class="details-list">
+
+                <dt>Category</dt>
+                <dd>{{ complaint.get_issue_type_display }}</dd>
+
+                <dt>Department</dt>
+                <dd>{{ complaint.department|default:"Pending routing" }}</dd>
+
+                <dt>Priority</dt>
+                <dd>{{ complaint.get_priority_display }}</dd>
+
+                <dt>Last updated</dt>
+                <dd>{{ complaint.updated_at|date:"d M Y, H:i" }}</dd>
+
+            </dl>
+        </aside>
+
+    </div>
+</div>
+
+{% endblock %}

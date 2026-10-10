@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% block title %}MetroServe Administration{% endblock %}
+{% block branding %}<div id="site-name"><a href="{% url 'admin:index' %}">METROSERVE <span>ADMIN CONTROL</span></a>
+</div>{% endblock %}
+{% block extrastyle %}<style>
+    body {
+        background: #070b12;
+        color: #e8eff8
+    }
+
+    #header {
+        background: #0b1320;
+        color: #fff
+    }
+
+    #header a {
+        color: #fff
+    }
+
+    #site-name a {
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: .06em
+    }
+
+    #site-name span {
+        font-size: 10px;
+        color: #6e9cff;
+        margin-left: 8px
+    }
+
+    div.breadcrumbs {
+        background: #111b2a
+    }
+
+    #content-main .module,
+    #content-related .module {
+        border: 1px solid #26364d;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #0d1420
+    }
+
+    #content-main .module caption,
+    #content-main .module h2 {
+        background: #14213a;
+        color: #fff
+    }
+
+    #content-main .module a {
+        color: #7fa3ff
+    }
+
+    .button,
+    .submit-row input {
+        background: #2f6bff !important;
+        border-radius: 8px !important;
+        border: 0 !important
+    }
+
+    .object-tools a {
+        background: #2f6bff !important;
+        border-radius: 8px
+    }
+</style>{% endblock %}

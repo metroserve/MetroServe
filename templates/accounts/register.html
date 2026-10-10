@@ -1,0 +1,26 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Create Account{% endblock %}{% block content %}<div
+    class="auth-wrap">
+    <div class="auth-card wide reveal">
+        <div class="auth-brand">
+            <div class="brand-mark big">M</div>
+            <h1>Create your MetroServe account</h1>
+            <p>Report municipal issues and track their progress.</p>
+        </div>{% if errors %}<div class="error-box"><b>Please correct:</b>
+            <ul>{% for e in errors %}<li>{{e}}</li>{% endfor %}</ul>
+        </div>{% endif %}<form method="post">{% csrf_token %}<div class="form-grid">
+                <div><label>First name</label><input name="first_name" value="{{form_data.first_name|default:''}}"
+                        required></div>
+                <div><label>Last name</label><input name="last_name" value="{{form_data.last_name|default:''}}"
+                        required></div>
+                <div><label>Email</label><input type="email" name="email" value="{{form_data.email|default:''}}"
+                        required></div>
+                <div><label>Phone</label><input type="tel" name="phone_number"
+                        value="{{form_data.phone_number|default:''}}" required></div>
+                <div><label>Username</label><input name="username" value="{{form_data.username|default:''}}" required>
+                </div>
+                <div><label>Password</label><input type="password" name="password" required></div>
+                <div><label>Confirm password</label><input type="password" name="password_confirm" required></div>
+            </div><button class="btn btn-primary btn-large full">Create MetroServe Account</button></form>
+        <div class="auth-foot">Already registered? <a href="{% url 'login' %}">Sign in</a></div>
+    </div>
+</div>{% endblock %}

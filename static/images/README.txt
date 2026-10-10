@@ -1,0 +1,1 @@
+Put your final MetroServe logo at static/images/logo.png and your preferred hero image at static/images/hero.jpg. The supplied CSS currently uses a text M mark so the prototype works before those assets are added.

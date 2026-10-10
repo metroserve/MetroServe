@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% block title %}MetroServe | My Complaints{% endblock %}{% block content %}<div
+    class="page-shell">
+    <div class="page-top">
+        <div><span class="eyebrow">RESIDENT PORTAL</span>
+            <h1>My Complaints</h1>
+            <p>Track every service request you have submitted.</p>
+        </div><a class="btn btn-primary" href="{% url 'complaint_create' %}">+ New Report</a>
+    </div>
+    <section class="panel">
+        <div class="request-list">{% for c in complaints %}<a class="request-row"
+                href="{% url 'complaint_detail' c.pk %}">
+                <div class="request-icon">{{c.get_issue_type_display|slice:':1'}}</div>
+                <div class="request-main"><strong>{{c.reference_number}} · {{c.title}}</strong><span>{{c.location}} •
+                        {{c.created_at|date:'d M Y'}}</span></div><span
+                    class="status status-{{c.status}}">{{c.get_status_display}}</span><span class="chevron">›</span>
+            </a>{% empty %}<div class="empty-state">
+                <div>⌁</div>
+                <h3>No complaints yet</h3>
+                <p>Start by reporting a municipal service issue.</p>
+            </div>{% endfor %}</div>
+    </section>
+</div>{% endblock %}

@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MetroServe{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/metroserve.css' %}">
+</head>
+
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+  <header class="topbar">
+    <a class="brand" href="{% url 'home' %}">
+      <div class="brand-mark">M</div>
+      <div><strong>MetroServe</strong><span>METROPOLITAN MUNICIPAL SERVICES</span></div>
+    </a>
+    <nav class="nav-links">
+      <a href="{% url 'home' %}">Home</a>
+      {% if request.user.is_authenticated %}
+      {% if request.user.is_staff %}<a href="{% url 'staff_dashboard' %}">Staff Console</a><a
+        href="{% url 'reports_dashboard' %}">Reports</a>{% if request.user.is_superuser %}<a
+        href="{% url 'admin_dashboard' %}">Admin</a>{% endif %}
+      {% else %}<a href="{% url 'citizen_dashboard' %}">Dashboard</a><a href="{% url 'complaint_create' %}">Report
+        Issue</a><a href="{% url 'complaint_list' %}">My Complaints</a><a
+        href="{% url 'notification_list' %}">Notifications</a>{% endif %}
+      <a class="user-pill" href="{% url 'profile' %}">
+  {% if request.user.profile.profile_picture %}
+    <img src="{{ request.user.profile.profile_picture.url }}">
+  {% else %}
+    <span class="avatar">
+      {{ request.user.first_name|first|default:request.user.username|first|upper }}
+    </span>
+  {% endif %}
+  <span>
+    {{ request.user.first_name|default:request.user.username }}
+  </span>
+</a>
+
+      <a class="nav-login" href="{% url 'logout' %}">Sign out</a>
+      {% else %}<a class="nav-login" href="{% url 'login' %}">Resident Login</a><a class="nav-cta"
+        href="{% url 'register' %}">Create Account</a>{% endif %}
+    </nav>
+  </header>
+  <div class="advisory"><span class="advisory-tag">CIVIC ADVISORY</span><span>MetroServe dispatch network is online.
+      Report issues with a location for faster routing.</span><span class="status-dot"></span><span>Service Desk
+      Online</span></div>
+  <main class="site-main">{% if messages %}<div class="toast-stack">{% for message in messages %}<div
+        class="toast {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
+  <footer class="footer">
+    <div><strong>MetroServe</strong><span>Digital municipal service coordination</span></div>
+    <div>Citizen-first reporting • Secure access • Transparent tracking</div>
+  </footer>
+  <script src="{% static 'js/metroserve.js' %}"></script>
+</body>
+
+</html>

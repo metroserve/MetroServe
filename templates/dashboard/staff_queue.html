@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+    MetroServe | Complaint Queue
+{% endblock %}
+
+{% block content %}
+
+<div class="page-shell">
+
+    <div class="page-top">
+        <div>
+            <span class="eyebrow">OPERATIONS</span>
+            <h1>Complaint Queue</h1>
+            <p>Search, filter and manage incoming service requests.</p>
+        </div>
+    </div>
+
+    <form class="filter-bar" method="get">
+        <input
+            name="q"
+            value="{{ request.GET.q }}"
+            placeholder="Search reference, title or location"
+        >
+
+        <select name="status">
+            <option value="">All statuses</option>
+
+            {% for k, v in statuses %}
+                <option value="{{ k }}" {% if request.GET.status == k %}selected{% endif %}>
+                    {{ v }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="priority">
+            <option value="">All priorities</option>
+
+            {% for k, v in priorities %}
+                <option value="{{ k }}" {% if request.GET.priority == k %}selected{% endif %}>
+                    {{ v }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <section class="panel">
+
+        <div class="request-list">
+
+            {% for c in complaints %}
+
+                <a class="request-row"
+                   href="{% url 'staff_complaint_detail' c.pk %}">
+
+                    <div class="request-icon">
+                        {{ c.get_issue_type_display|slice:":1" }}
+                    </div>
+
+                    <div class="request-main">
+                        <strong>
+                            {{ c.reference_number }} · {{ c.title }}
+                        </strong>
+
+                        <span>
+                            {{ c.location }} •
+                            {{ c.department|default:"Unassigned department" }}
+                        </span>
+                    </div>
+
+                    <span class="priority priority-{{ c.priority }}">
+                        {{ c.get_priority_display }}
+                    </span>
+
+                    <span class="status status-{{ c.status }}">
+                        {{ c.get_status_display }}
+                    </span>
+
+                    <span class="chevron">›</span>
+
+                </a>
+
+            {% empty %}
+
+                <div class="empty-state">
+                    <h3>No matching complaints</h3>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

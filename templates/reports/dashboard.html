@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | Reports{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <div>
+            <span class="eyebrow">OPERATIONS INTELLIGENCE</span>
+            <h1>Reports & Analytics</h1>
+            <p>A quick view of service delivery activity.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'export_complaints_csv' %}">Export CSV</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="metric"><span>Total</span><strong>{{ total }}</strong></div>
+        <div class="metric"><span>Pending</span><strong>{{ pending }}</strong></div>
+        <div class="metric accent"><span>In progress</span><strong>{{ progress }}</strong></div>
+        <div class="metric"><span>Resolved</span><strong>{{ resolved }}</strong></div>
+    </div>
+
+    <section class="panel">
+    <div class="panel-head">
+        <div>
+            <span class="eyebrow">CATEGORY MIX</span>
+            <h2>Requests by category</h2>
+        </div>
+    </div>
+
+    <div class="bar-list">
+        {% for item in by_category %}
+            <div class="bar-row">
+                <span class="bar-label">{{ item.label }}</span>
+
+                <div class="bar-track">
+                    <i style="width: {{ item.percentage|floatformat:2 }}%;"></i>
+                </div>
+
+                <b class="bar-count">{{ item.count }}</b>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+</div>
+{% endblock %}

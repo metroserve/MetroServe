@@ -1,0 +1,54 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Dashboard{% endblock %}{% block content %}<div
+    class="page-shell">
+    <div class="page-top reveal">
+        <div><span class="eyebrow">RESIDENT PORTAL</span>
+            <h1>Good to see you, {{request.user.first_name|default:request.user.username}}.</h1>
+            <p>Everything you have reported is in one place.</p>
+        </div><a class="btn btn-primary" href="{% url 'complaint_create' %}">+ Report an Issue</a>
+    </div>
+    <div class="stats-grid reveal">
+        <div class="metric"><span>Total requests</span><strong>{{total_complaints}}</strong><small>All
+                submissions</small></div>
+        <div class="metric accent"><span>Active</span><strong>{{active_complaints}}</strong><small>Still being
+                handled</small></div>
+        <div class="metric"><span>Resolved</span><strong>{{resolved_complaints}}</strong><small>Completed
+                requests</small></div>
+        <div class="metric"><span>Unread</span><strong>{{unread_notifications}}</strong><small>New updates</small></div>
+    </div>
+    <div class="two-col">
+        <section class="panel reveal">
+            <div class="panel-head">
+                <div><span class="eyebrow">SERVICE REQUESTS</span>
+                    <h2>Recent complaints</h2>
+                </div><a href="{% url 'complaint_list' %}">View all →</a>
+            </div>{% if recent_complaints %}<div class="request-list">{% for c in recent_complaints %}<a
+                    class="request-row" href="{% url 'complaint_detail' c.pk %}">
+                    <div class="request-icon">{{c.get_issue_type_display|slice:':1'}}</div>
+                    <div class="request-main"><strong>{{c.title}}</strong><span>{{c.reference_number}} •
+                            {{c.location}}</span></div><span
+                        class="status status-{{c.status}}">{{c.get_status_display}}</span><span class="chevron">›</span>
+                </a>{% endfor %}</div>{% else %}<div class="empty-state">
+                <div>⌁</div>
+                <h3>No requests yet</h3>
+                <p>Report your first municipal issue to get started.</p><a class="btn btn-primary"
+                    href="{% url 'complaint_create' %}">Report an Issue</a>
+            </div>{% endif %}
+        </section>
+        <aside class="panel reveal delay-1">
+            <div class="panel-head">
+                <div><span class="eyebrow">UPDATES</span>
+                    <h2>Notifications</h2>
+                </div><a href="{% url 'notification_list' %}">All →</a>
+            </div>{% for n in recent_notifications %}<a class="notification-row"
+                href="{% url 'notification_detail' n.pk %}"><span
+                    class="notif-dot {% if not n.is_read %}new{% endif %}"></span>
+                <div><strong>{{n.title}}</strong>
+                    <p>{{n.message|truncatechars:75}}</p><small>{{n.created_at|date:'d M Y, H:i'}}</small>
+                </div>
+            </a>{% empty %}<div class="empty-state compact">
+                <div>✓</div>
+                <p>No notifications yet.</p>
+            </div>{% endfor %}
+        </aside>
+    </div>
+</div>{% endblock %}

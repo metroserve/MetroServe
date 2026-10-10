@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Notification{% endblock %}{% block content %}<div
+    class="page-shell narrow"><a class="back-link" href="{% url 'notification_list' %}">← Notifications</a>
+    <section class="panel"><span class="eyebrow">METROSERVE UPDATE</span>
+        <h1>{{notification.title}}</h1>
+        <p class="muted">{{notification.created_at|date:'d M Y, H:i'}}</p>
+        <hr>
+        <p>{{notification.message}}</p>{% if notification.complaint %}<a class="btn btn-primary"
+            href="{% url 'complaint_detail' notification.complaint.pk %}">View complaint</a>{% endif %}
+    </section>
+</div>{% endblock %}

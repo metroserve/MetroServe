@@ -1,0 +1,27 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Staff Portal{% endblock %}{% block content %}<div
+    class="auth-wrap">
+    <div class="auth-card reveal">
+        <div class="auth-brand">
+            <div class="brand-mark big staff-mark">MS</div>
+            <h1>Municipal Staff Console</h1>
+            <p>Authorised personnel only.</p>
+        </div>{% if messages %}<div class="error-box">{% for m in messages %}{{m}}{% endfor %}</div>{% endif %}<form method="post" action="{% url 'staff_login' %}">
+    {% csrf_token %}
+
+    <label>Staff username</label>
+    <input type="text" name="username" required>
+
+    <label>Password</label>
+    <input type="password" name="password" required>
+
+    <button type="submit" class="btn btn-primary btn-large full">
+        Enter Staff Console
+    </button>
+</form>
+       <div class="auth-foot">
+    <a href="{% url 'login' %}">← Resident Login</a>
+    <span> | </span>
+    <a href="/admin/">Administrator Login →</a>
+</div>
+    </div>
+</div>{% endblock %}

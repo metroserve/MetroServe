@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Submitted{% endblock %}{% block content %}<div
+    class="success-shell reveal">
+    <div class="success-icon">✓</div><span class="eyebrow">REQUEST RECEIVED</span>
+    <h1>Your report is now in the MetroServe network.</h1>
+    <p>Keep this reference number. You can track the request from any device.</p>
+    <div class="reference-card"><small>REFERENCE
+            NUMBER</small><strong>{{complaint.reference_number}}</strong><span>{{complaint.get_issue_type_display}} •
+            {{complaint.location}}</span></div>
+    <div class="hero-buttons"><a class="btn btn-primary" href="{% url 'complaint_list' %}">My Complaints</a><a
+            class="btn btn-ghost" href="{% url 'citizen_dashboard' %}">Dashboard</a></div>
+</div>{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Municipal Service Network{% endblock %}{% block content %}
+<section class="hero-shell">
+    <div class="hero-copy reveal">
+        <div class="eyebrow">● OFFICIAL METROPOLITAN MUNICIPAL NETWORK</div>
+        <h1>Report municipal issues.<br><span>Track every response.</span></h1>
+        <p>MetroServe connects residents with municipal teams so service delivery issues can be reported, routed and
+            followed from one secure digital platform.</p>
+        <div class="hero-buttons"><a class="btn btn-primary btn-large" href="{% url 'complaint_create' %}">Report an
+                Issue <span>→</span></a><a class="btn btn-ghost btn-large" href="#how">See how it works</a></div>
+        <div class="trust-row"><span>✓ Secure citizen accounts</span><span>⌖ GPS-assisted location</span></div>
+    </div>
+    <div class="hero-visual reveal delay-1">
+
+        <div class="hero-image-container my-5 shadow-lg rounded overflow-hidden">
+            {% load static %}
+            <img src="{% static 'images/hero.jpg' %}" alt="MetroServe Hero Image" class="img-fluid w-100"
+                style="max-height: 450px; object-fit: cover;">
+        </div>
+
+        <div class="track-card">
+            <div><small>HAVE A REFERENCE CODE?</small><strong>MET-2026-#####</strong></div>
+            <form id="homeTrackForm" class="home-track-form">
+    <input
+        id="homeTrack"
+        type="text"
+        placeholder="Enter complaint reference"
+        aria-label="Complaint reference number"
+        required
+    >
+    <button type="submit">Track</button>
+</form>
+
+<p id="homeTrackError" role="alert" hidden>
+    Please enter your complaint reference number.
+</p>
+        </div>
+    </div>
+</section>
+<section class="service-strip reveal">
+    <div><span class="service-icon">01</span><b>Report</b><small>Capture the issue and location</small></div>
+    <div><span class="service-icon">02</span><b>Route</b><small>Automatically route to a department</small></div>
+    <div><span class="service-icon">03</span><b>Track</b><small>Follow progress with your reference</small></div>
+    <div><span class="service-icon">04</span><b>Resolve</b><small>Receive status and resolution updates</small></div>
+</section>
+<section id="how" class="section-block">
+    <div class="section-heading"><span>METROSERVE WORKFLOW</span>
+        <h2>Built for real municipal service delivery.</h2>
+    </div>
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div>⌖</div>
+            <h3>GPS location</h3>
+            <p>Use your device's current location when reporting an issue, while keeping manual address entry available.
+            </p>
+        </article>
+        <article class="feature-card">
+            <div>◈</div>
+            <h3>Live tracking</h3>
+            <p>Every submission receives a unique reference and a public tracking page.</p>
+        </article>
+        <article class="feature-card">
+            <div>T</div>
+            <h3>Monitor Progress</h3>
+            <p>Check whether your complaint is pending,in progress, or resolved.</p>
+        </article>
+        <article class="feature-card">
+            <div>↗</div>
+            <h3>Municipal console</h3>
+            <p>Staff can assign, update, prioritise and document service requests.</p>
+        </article>
+    </div>
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("homeTrackForm");
+    const input = document.getElementById("homeTrack");
+    const error = document.getElementById("homeTrackError");
+
+    if (!form || !input || !error) return;
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const reference = input.value.trim();
+
+        if (!reference) {
+            error.textContent = "Please enter your complaint reference number.";
+            error.hidden = false;
+            return;
+        }
+
+        error.hidden = true;
+
+        const trackingUrl =
+            "{% url 'public_track' 'REFERENCE_PLACEHOLDER' %}";
+
+        window.location.href = trackingUrl.replace(
+            "REFERENCE_PLACEHOLDER",
+            encodeURIComponent(reference)
+        );
+    });
+});
+</script>
+{% endblock %}

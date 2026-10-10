@@ -1,0 +1,62 @@
+
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | Verify Email{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-mark big">M</div>
+            <h1>Verify your email</h1>
+            <p>
+                {% if email %}
+                    Enter the 6-digit code sent to {{ email }}.
+                {% else %}
+                    Enter the 6-digit verification code sent to your email.
+                {% endif %}
+            </p>
+        </div>
+
+        {% if messages %}
+            <div class="error-box">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="code">Verification code</label>
+            <input
+                id="code"
+                type="text"
+                name="code"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                minlength="6"
+                maxlength="6"
+                autocomplete="one-time-code"
+                required
+                placeholder="Enter 6-digit code"
+            >
+            <button class="btn btn-primary btn-large full" type="submit">
+                Verify and continue
+            </button>
+        </form>
+
+        <form method="post" style="margin-top: 12px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resend">
+            <button class="btn btn-secondary full" type="submit">
+                Send a new code
+            </button>
+        </form>
+
+        <div class="auth-foot">
+            <a href="{% url 'login' %}">Return to Resident Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

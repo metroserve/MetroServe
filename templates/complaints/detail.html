@@ -1,0 +1,24 @@
+{% extends 'base.html' %}{% block title %}MetroServe | {{complaint.reference_number}}{% endblock %}{% block content %}
+<div class="page-shell"><a class="back-link" href="{% url 'complaint_list' %}">← My complaints</a>
+    <div class="detail-grid">
+        <section class="panel">
+            <div class="detail-header">
+                <div><span class="eyebrow">{{complaint.reference_number}}</span>
+                    <h1>{{complaint.title}}</h1>
+                    <p>{{complaint.get_issue_type_display}} • {{complaint.location}}</p>
+                </div><span class="status status-{{complaint.status}}">{{complaint.get_status_display}}</span>
+            </div>{% if complaint.image %}<img class="complaint-image" src="{{complaint.image.url}}">{% endif %}<div
+                class="timeline">
+                <div class="timeline-title"><span>PROGRESS</span><b>Request history</b></div>
+                <div class="timeline-item"><i class="done"></i>
+                    <div><b>Submitted</b><small>{{complaint.created_at|date:'d M Y, H:i'}}</small></div>
+                </div>{% for u in complaint.updates.all %}
+                <div class="timeline-item"><i
+                        class="{% if u.status == complaint.status %}current{% else %}done{% endif %}"></i>
+                    <div><b>{{u.get_status_display}}</b><small>{{u.created_at|date:'d M Y, H:i'}}{% if u.note %} •
+                            {{u.note}}{% endif %}</small></div>
+                </div>{% endfor %}
+            </div>
+        </section>
+    </div>
+</div>{% endblock %}

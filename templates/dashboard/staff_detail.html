@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | Manage Complaint{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <a class="back-link" href="{% url 'staff_complaint_list' %}">
+        ← Back to queue
+    </a>
+
+    <div class="detail-grid">
+        <section class="panel">
+            <div class="detail-header">
+                <div>
+                    <span class="eyebrow">{{ complaint.reference_number }}</span>
+                    <h1>{{ complaint.title }}</h1>
+                    <p>{{ complaint.location }}</p>
+                </div>
+                <span class="status status-{{ complaint.status }}">
+                    {{ complaint.get_status_display }}
+                </span>
+            </div>
+
+            {% if complaint.image %}
+                <img
+                    class="complaint-image"
+                    src="{{ complaint.image.url }}"
+                    alt="Image attached to complaint"
+                >
+            {% endif %}
+
+            <div class="detail-section">
+                <h3>Citizen report</h3>
+                <p>{{ complaint.description }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h3>Location</h3>
+                <p>
+                    {{ complaint.location }}
+                    {% if complaint.latitude %}
+                        <br>
+                        <small>
+                            GPS: {{ complaint.latitude }}, {{ complaint.longitude }}
+                        </small>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="detail-section">
+    <h3>Status History</h3>
+
+    {% if updates %}
+        {% for update in updates %}
+            <div class="history-entry">
+                <p>
+                    <strong>
+                        {% if update.previous_status %}
+                            {{ update.get_previous_status_display }}
+                            →
+                        {% else %}
+                            Update recorded →
+                        {% endif %}
+                        {{ update.get_status_display }}
+                    </strong>
+                </p>
+
+                <p>
+                    <small>
+                        By:
+                        {% if update.updated_by %}
+                            {{ update.updated_by.get_full_name|default:update.updated_by.username }}
+                        {% else %}
+                            Unknown user
+                        {% endif %}
+                        · {{ update.created_at|date:"d M Y, H:i" }} UTC
+                    </small>
+                </p>
+
+                {% if update.note %}
+                    <p>{{ update.note }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No history recorded yet.</p>
+    {% endif %}
+</div>
+        </section>
+
+        <aside class="panel">
+            <span class="eyebrow">DISPATCH ACTIONS</span>
+            <h2>Update request</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <label for="status">Status</label>
+                <select name="status" id="status">
+                    {% for k, v in statuses %}
+                        <option value="{{ k }}" {% if complaint.status == k %}selected{% endif %}>
+                            {{ v }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="priority">Priority</label>
+                <select name="priority" id="priority">
+                    {% for k, v in priorities %}
+                        <option value="{{ k }}" {% if complaint.priority == k %}selected{% endif %}>
+                            {{ v }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="assigned_to">Assign to</label>
+                <select name="assigned_to" id="assigned_to">
+                    <option value="">Unassigned</option>
+                    {% for u in staff_users %}
+                        <option value="{{ u.pk }}" {% if complaint.assigned_to_id == u.pk %}selected{% endif %}>
+                            {{ u.get_full_name|default:u.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="update_note">Update note</label>
+                <textarea
+                    name="update_note"
+                    id="update_note"
+                    rows="4"
+                    placeholder="Add an operational note..."
+                ></textarea>
+
+                <label for="resolution_notes">Resolution notes</label>
+                <textarea
+                    name="resolution_notes"
+                    id="resolution_notes"
+                    rows="5"
+                >{{ complaint.resolution_notes }}</textarea>
+
+                <button class="btn btn-primary full" type="submit">
+                    Save update
+                </button>
+            </form>
+        </aside>
+    </div>
+</div>
+{% endblock %}

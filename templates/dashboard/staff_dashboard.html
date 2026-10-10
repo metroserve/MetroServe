@@ -1,0 +1,56 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Staff Console{% endblock %}{% block content %}<div
+    class="page-shell">
+    <div class="page-top reveal">
+        <div><span class="eyebrow">MUNICIPAL OPERATIONS</span>
+            <h1>Staff Command Center</h1>
+            <p>Monitor, route and resolve MetroServe service requests.</p>
+        </div>
+        <div class="live-badge"><i></i> Dispatch network online</div>
+    </div>
+    <div class="stats-grid reveal">
+        <div class="metric"><span>Total requests</span><strong>{{total}}</strong><small>All departments</small></div>
+        <div class="metric"><span>Pending</span><strong>{{pending}}</strong><small>Awaiting assignment</small></div>
+        <div class="metric accent"><span>In progress</span><strong>{{progress}}</strong><small>Crews engaged</small>
+        </div>
+        <div class="metric danger"><span>Urgent</span><strong>{{urgent}}</strong><small>Needs attention</small></div>
+    </div>
+    <div class="staff-grid">
+        <section class="panel reveal">
+            <div class="panel-head">
+                <div><span class="eyebrow">LIVE QUEUE</span>
+                    <h2>Latest service requests</h2>
+                </div><a class="btn btn-secondary" href="{% url 'staff_complaint_list' %}">Open queue</a>
+            </div>
+            <div class="request-list">{% for c in recent %}<a class="request-row"
+                    href="{% url 'staff_complaint_detail' c.pk %}">
+                    <div class="request-icon">{{c.get_issue_type_display|slice:':1'}}</div>
+                    <div class="request-main"><strong>{{c.reference_number}} ·
+                            {{c.title}}</strong><span>{{c.citizen.get_full_name|default:c.citizen.username}} •
+                            {{c.location}}</span></div><span
+                        class="status status-{{c.status}}">{{c.get_status_display}}</span><span class="chevron">›</span>
+                </a>{% empty %}<div class="empty-state">
+                    <h3>Queue is clear</h3>
+                </div>{% endfor %}</div>
+        </section>
+        <aside class="panel reveal delay-1">
+            <div class="panel-head">
+                <div><span class="eyebrow">TOOLS</span>
+                    <h2>Operations</h2>
+                </div>
+            </div>
+            <div class="tool-stack"><a href="{% url 'staff_complaint_list' %}"><b>Complaint queue</b><span>Filter and
+                        manage requests →</span></a><a href="{% url 'reports_dashboard' %}"><b>Reports &
+                        analytics</b><span>Operational overview →</span></a><a href="{% url 'profile' %}"><b>My staff
+                        profile</b><span>Update photo and details →</span></a><a>
+            </div>
+        </aside>
+    </div>
+</div>
+<div class="auth-foot" style="margin-top: 24px; text-align: center;">
+    <a href="{% url 'login' %}">Resident Login</a>
+    <span> · </span>
+    <a href="{% url 'admin:index' %}">Admin Control Login</a>
+    <span> · </span>
+    <a href="{% url 'logout' %}">Sign out</a>
+</div>
+{% endblock %}

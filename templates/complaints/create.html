@@ -1,0 +1,44 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Report Issue{% endblock %}{% block content %}<div
+    class="form-shell reveal">
+    <div class="form-header">
+        <div class="brand-mark">M</div>
+        <div><span class="eyebrow">MUNICIPAL SERVICE REGISTRY</span>
+            <h1>Report a Service Delivery Issue</h1>
+            <p>Provide enough detail for the correct department to act quickly.</p>
+        </div><span class="sla-badge">◈ SLA MONITORED</span>
+    </div>
+    <div class="sla-banner"><strong>Municipal dispatch target: 4–12 hours</strong><span>Standard tickets are routed to
+            the relevant service team. Critical hazards should also use the appropriate emergency service.</span></div>
+    <form method="post" enctype="multipart/form-data" id="reportForm">{% csrf_token %}<div class="form-section">
+            <div class="section-line">
+                <h3>Issue details</h3><span>Required information</span>
+            </div><label>Issue category *</label><select name="issue_type" required>
+                <option value="">-- Select issue type --</option>{% for k,v in categories %}<option value="{{k}}">{{v}}
+                </option>{% endfor %}
+            </select><small class="hint">→ MetroServe will route this to the relevant municipal
+                department.</small><label>Short title *</label><input name="title" required
+                placeholder="e.g. Large pothole near Main Street"><label>Description *</label><textarea
+                name="description" rows="5" required
+                placeholder="Describe what is happening, how serious it is, and any useful landmarks..."></textarea><label>Priority</label><select
+                name="priority">{% for k,v in priorities %}<option value="{{k}}">{{v}}</option>{% endfor %}</select>
+        </div>
+        <div class="form-section">
+            <div class="section-line">
+                <h3>Incident location</h3><span>GPS-assisted</span>
+            </div>
+            <div class="location-row"><input id="location" name="location" required
+                    placeholder="Enter street address or area"><button type="button" class="btn btn-location"
+                    onclick="getLocation()">⌖ Use Current Location</button></div>
+            <div id="locationStatus" class="location-status">○ Location not captured yet. You can enter it manually.
+            </div><input type="hidden" id="latitude" name="latitude"><input type="hidden" id="longitude"
+                name="longitude">
+        </div>
+        <div class="form-section">
+            <div class="section-line">
+                <h3>Photo evidence</h3><span>Optional</span>
+            </div><input type="file" name="image" accept="image/*"><small class="hint">A clear photo can help the
+                municipal team understand the issue.</small>
+        </div><button class="btn btn-primary btn-large full" type="submit">Submit Service Request
+            <span>→</span></button>
+    </form>
+</div>{% endblock %}

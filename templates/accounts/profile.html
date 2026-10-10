@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | My Profile{% endblock %}
+
+{% block content %}
+<div class="page-shell narrow">
+    <div class="page-top">
+        <div>
+            <span class="eyebrow">ACCOUNT</span>
+            <h1>My Profile</h1>
+            <p>Update your MetroServe identity and profile picture.</p>
+        </div>
+    </div>
+    
+    <section class="panel profile-panel">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="profile-preview">
+                {% if profile_obj.profile_picture %}
+                    <img src="{{ profile_obj.profile_picture.url }}">
+                {% else %}
+                    <span>{{ request.user.first_name|first|default:request.user.username|first|upper }}</span>
+                {% endif %}
+                <div>
+                    <label>Profile picture</label>
+                    <input type="file" name="profile_picture" accept="image/*">
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div>
+                    <label>First name</label>
+                    <input name="first_name" value="{{ request.user.first_name }}">
+                </div>
+                <div>
+                    <label>Last name</label>
+                    <input name="last_name" value="{{ request.user.last_name }}">
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ request.user.email }}">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input name="phone_number" value="{{ profile_obj.phone_number }}">
+                </div>
+            </div>
+            
+            <label>Short bio</label>
+            <input name="bio" value="{{ profile_obj.bio }}" placeholder="e.g. Resident / Field technician">
+            
+            <button class="btn btn-primary">Save profile</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

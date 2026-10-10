@@ -1,0 +1,16 @@
+{% extends 'base.html' %}{% block title %}MetroServe | Resident Login{% endblock %}{% block content %}<div
+    class="auth-wrap">
+    <div class="auth-card reveal">
+        <div class="auth-brand">
+            <div class="brand-mark big">M</div>
+            <h1>Resident Portal</h1>
+            <p>Sign in to manage your MetroServe requests.</p>
+        </div>{% if messages %}<div class="error-box">{% for m in messages %}{{m}}{% endfor %}</div>{% endif %}<form
+            method="post">{% csrf_token %}<label>Email address</label><input type="email" name="email" required
+                autocomplete="email" placeholder="you@example.com"><label>Password</label><input type="password"
+                name="password" required autocomplete="current-password" placeholder="Your password"><button
+                class="btn btn-primary btn-large full">Sign in</button></form>
+        <div class="auth-foot">New resident? <a href="{% url 'register' %}">Create an account</a><br><a
+                href="{% url 'staff_login' %}">Municipal Staff Portal →</a></div>
+    </div>
+</div>{% endblock %}
