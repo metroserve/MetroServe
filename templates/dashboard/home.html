@@ -5,8 +5,23 @@
         <h1>Report municipal issues.<br><span>Track every response.</span></h1>
         <p>MetroServe connects residents with municipal teams so service delivery issues can be reported, routed and
             followed from one secure digital platform.</p>
-        <div class="hero-buttons"><a class="btn btn-primary btn-large" href="{% url 'complaint_create' %}">Report an
-                Issue <span>→</span></a><a class="btn btn-ghost btn-large" href="#how">See how it works</a></div>
+       <div class="hero-buttons">
+    <a class="btn btn-primary btn-large" href="{% url 'complaint_create' %}">
+        Report an Issue <span>→</span>
+    </a>
+
+    <a class="btn btn-ghost btn-large" href="{% url 'login' %}">
+        Resident Login
+    </a>
+
+    <a class="btn btn-ghost btn-large" href="{% url 'staff_login' %}">
+        Staff Login
+    </a>
+
+    <a class="btn btn-ghost btn-large" href="#how">
+        See how it works
+    </a>
+</div>
         <div class="trust-row"><span>✓ Secure citizen accounts</span><span>⌖ GPS-assisted location</span></div>
     </div>
     <div class="hero-visual reveal delay-1">
