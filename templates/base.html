@@ -40,7 +40,7 @@
 </a>
 
       <a class="nav-login" href="{% url 'logout' %}">Sign out</a>
-      {% else %}<a class="nav-login" href="{% url 'login' %}">Resident Login</a><a class="nav-cta"
+      {% else %}<a class="nav-login" href="{% url 'login' %}">Resident Login</a><a href="{% url 'staff_login' %}">Staff Login</a><a class="nav-cta"
         href="{% url 'register' %}">Create Account</a>{% endif %}
     </nav>
   </header>

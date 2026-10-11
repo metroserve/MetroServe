@@ -26,7 +26,8 @@ class Complaint(models.Model):
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='normal')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     resolution_notes = models.TextField(blank=True)
-    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_complaints', limit_choices_to={'is_staff': True})
+    assigned_to = models.ForeignKey( User, on_delete=models.SET_NULL, null=True,blank=True,related_name='assigned_complaints',limit_choices_to={'is_staff': True})
+    assigned_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -121,6 +121,13 @@
                         </option>
                     {% endfor %}
                 </select>
+         <label for="assigned_date">Assignment date</label>
+           <input type="date"
+           name="assigned_date"
+           id="assigned_date"
+           value="{% if complaint.assigned_date %}{{ complaint.assigned_date|date:'Y-m-d' }}{% endif %}"
+           min="{{ complaint.created_at|date:'Y-m-d' }}"
+          {% if complaint.assigned_to_id %}required{% endif %}>
 
                 <label for="update_note">Update note</label>
                 <textarea
