@@ -1,20 +1,35 @@
-{% extends 'base.html' %}{% block title %}MetroServe | Notifications{% endblock %}{% block content %}<div
-    class="page-shell">
+{% extends 'base.html' %}
+
+{% block title %}MetroServe | Notifications{% endblock %}
+
+{% block content %}
+<div class="page-shell">
     <div class="page-top">
-        <div><span class="eyebrow">RESIDENT UPDATES</span>
+        <div>
+            <span class="eyebrow">RESIDENT UPDATES</span>
             <h1>Notifications</h1>
             <p>Updates about your MetroServe service requests.</p>
-        </div><a href="{% url 'notification_preferences' %}" class="btn btn-secondary">Notification settings</a>
+        </div>
+        <a href="{% url 'notification_preferences' %}" class="btn btn-secondary">Notification settings</a>
     </div>
+
     <section class="panel">
-        <div class="notification-list">{% for n in notifications %}<a
-                class="notification-row large {% if not n.is_read %}unread{% endif %}"
-                href="{% url 'notification_detail' n.pk %}"><span
-                    class="notif-dot {% if not n.is_read %}new{% endif %}"></span>
-                <div><strong>{{n.title}}</strong>
-                    <p>{{n.message}}</p><small>{{n.created_at|date:'d M Y, H:i'}}</small>
-                </div>
-           
-            </div>{% endfor %}</div>
+        <div class="notification-list">
+            {% for n in notifications %}
+                <!-- Fixed: Properly closed the <a> tag below -->
+                <a class="notification-row large {% if not n.is_read %}unread{% endif %}"
+                   href="{% url 'notification_detail' n.pk %}">
+                    
+                    <span class="notif-dot {% if not n.is_read %}new{% endif %}"></span>
+                    
+                    <div>
+                        <strong>{{ n.title }}</strong>
+                        <p>{{ n.message }}</p>
+                        <small>{{ n.created_at|date:'d M Y, H:i' }}</small>
+                    </div>
+                </a> 
+            {% endfor %}
+        </div>
     </section>
-</div>{% endblock %}
+</div>
+{% endblock %}

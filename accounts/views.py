@@ -1,4 +1,3 @@
-
 import secrets
 from datetime import timedelta
 
@@ -13,16 +12,25 @@ from django.db import transaction
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from .models import UserProfile, EmailVerificationCode
+from .models import EmailVerificationCode, UserProfile
 
 
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
 CODE_LIFETIME_MINUTES = 10
 MAX_CODE_ATTEMPTS = 5
 RESEND_WAIT_SECONDS = 60
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 def _send_verification_code(user, purpose):
-    """Invalidate old codes, create a new hashed code, and email it."""
+    """
+    Invalidate any outstanding codes for this user/purpose, create a new
+    hashed code, and email it to the user.
+    """
     now = timezone.now()
 
     EmailVerificationCode.objects.filter(
@@ -40,11 +48,10 @@ def _send_verification_code(user, purpose):
         expires_at=now + timedelta(minutes=CODE_LIFETIME_MINUTES),
     )
 
-    subject = (
-        'Verify your MetroServe account'
-        if purpose == 'registration'
-        else 'Your MetroServe sign-in code'
-    )
+    if purpose == 'registration':
+        subject = 'Verify your MetroServe account'
+    else:
+        subject = 'Your MetroServe sign-in code'
 
     message = (
         f'Hello {user.first_name or user.username},\n\n'
@@ -64,12 +71,21 @@ def _send_verification_code(user, purpose):
 
 
 def _start_verification(request, user, purpose):
+    """Store verification context on the session and send the code."""
     request.session['verification_user_id'] = user.pk
     request.session['verification_purpose'] = purpose
-
     _send_verification_code(user, purpose)
 
 
+def _clear_verification_session(request):
+    """Remove any verification context from the session."""
+    request.session.pop('verification_user_id', None)
+    request.session.pop('verification_purpose', None)
+
+
+# ---------------------------------------------------------------------------
+# Registration
+# ---------------------------------------------------------------------------
 def register(request):
     if request.method == 'POST':
         data = request.POST
@@ -83,10 +99,9 @@ def register(request):
         password = data.get('password', '')
         confirm = data.get('password_confirm', '')
 
-        if not all([
-            username, first_name, last_name, email,
-            phone, password, confirm
-        ]):
+        # --- validation ---
+        if not all([username, first_name, last_name, email,
+                    phone, password, confirm]):
             errors.append('All required fields must be completed.')
 
         if password != confirm:
@@ -98,58 +113,62 @@ def register(request):
         if User.objects.filter(email__iexact=email).exists():
             errors.append('That email address is already registered.')
 
-        if not errors:
-            try:
-                with transaction.atomic():
-                    user = User.objects.create_user(
-                        username=username,
-                        email=email,
-                        password=password,
-                        first_name=first_name,
-                        last_name=last_name,
-                        is_active=False,
-                    )
+        if errors:
+            return render(
+                request,
+                'accounts/register.html',
+                {'errors': errors, 'form_data': data},
+            )
 
-                    profile, _ = UserProfile.objects.get_or_create(
-                        user=user
-                    )
-                    profile.phone_number = phone
-                    profile.role = 'citizen'
-                    profile.save()
-
-                    _start_verification(
-                        request, user, 'registration'
-                    )
-
-            except Exception:
-                # Avoid leaving an unusable account if email sending fails.
-                if 'user' in locals():
-                    user.delete()
-
-                messages.error(
-                    request,
-                    'We could not send the verification email. '
-                    'Please check the email address and try again.'
-                )
-                return render(
-                    request,
-                    'accounts/register.html',
-                    {'errors': [], 'form_data': data},
+        # --- create the account atomically ---
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    is_active=False,
                 )
 
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.phone_number = phone
+                profile.role = 'citizen'
+                profile.save()
+
+                request.session['verification_user_id'] = user.pk
+                request.session['verification_purpose'] = 'registration'
+        except Exception:
+            messages.error(
+                request,
+                'We could not create your account. Please try again.'
+            )
+            return render(
+                request,
+                'accounts/register.html',
+                {'errors': [], 'form_data': data},
+            )
+
+        # --- send the verification email (outside the transaction) ---
+        try:
+            _send_verification_code(user, 'registration')
+        except Exception:
+            messages.warning(
+                request,
+                'Your account was created, but the verification email '
+                'could not be sent. Use "Send a new code" to try again.'
+            )
+        else:
             messages.success(
                 request,
                 'A verification code has been sent. '
                 'Check your email or the development terminal.'
             )
-            return redirect('verify_email_code')
 
-        return render(
-            request,
-            'accounts/register.html',
-            {'errors': errors, 'form_data': data},
-        )
+        return redirect('verify_email_code')
 
+    # GET
     return render(
         request,
         'accounts/register.html',
@@ -157,6 +176,9 @@ def register(request):
     )
 
 
+# ---------------------------------------------------------------------------
+# Resident login (password, then email code)
+# ---------------------------------------------------------------------------
 def citizen_login(request):
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
@@ -187,8 +209,7 @@ def citizen_login(request):
             try:
                 _start_verification(request, user, 'login')
             except Exception:
-                request.session.pop('verification_user_id', None)
-                request.session.pop('verification_purpose', None)
+                _clear_verification_session(request)
                 messages.error(
                     request,
                     'We could not send a verification code. '
@@ -207,6 +228,9 @@ def citizen_login(request):
     return render(request, 'registration/login.html')
 
 
+# ---------------------------------------------------------------------------
+# Verification code entry (registration + login)
+# ---------------------------------------------------------------------------
 def verify_email_code(request):
     user_id = request.session.get('verification_user_id')
     purpose = request.session.get('verification_purpose')
@@ -221,14 +245,12 @@ def verify_email_code(request):
     user = User.objects.filter(pk=user_id).first()
 
     if not user:
-        request.session.pop('verification_user_id', None)
-        request.session.pop('verification_purpose', None)
+        _clear_verification_session(request)
         messages.error(request, 'The account could not be found.')
         return redirect('login')
 
     if request.method == 'POST':
-        # Allow a user to request a replacement code without
-        # repeatedly sending email on every page refresh.
+        # --- resend branch ---
         if request.POST.get('action') == 'resend':
             recent_code = EmailVerificationCode.objects.filter(
                 user=user,
@@ -252,11 +274,13 @@ def verify_email_code(request):
                 except Exception:
                     messages.error(
                         request,
-                        'We could not send a new code. Please try again later.'
+                        'We could not send a new code. '
+                        'Please try again later.'
                     )
 
             return redirect('verify_email_code')
 
+        # --- verify branch ---
         now = timezone.now()
 
         code_record = EmailVerificationCode.objects.filter(
@@ -315,20 +339,18 @@ def verify_email_code(request):
                 {'email': user.email},
             )
 
-        # Mark the code used before completing the verification.
+        # --- success ---
         code_record.used_at = now
         code_record.save(update_fields=['used_at'])
-
-        request.session.pop('verification_user_id', None)
-        request.session.pop('verification_purpose', None)
+        _clear_verification_session(request)
 
         if purpose == 'registration':
             user.is_active = True
             user.save(update_fields=['is_active'])
-
             messages.success(
                 request,
-                'Email verified! You can now sign in with your email and password.'
+                'Email verified! You can now sign in with your email '
+                'and password.'
             )
             return redirect('login')
 
@@ -340,9 +362,9 @@ def verify_email_code(request):
             return redirect('login')
 
         login(request, user)
-
         return redirect('citizen_dashboard')
 
+    # GET
     return render(
         request,
         'accounts/verify_email.html',
@@ -350,6 +372,9 @@ def verify_email_code(request):
     )
 
 
+# ---------------------------------------------------------------------------
+# Staff login
+# ---------------------------------------------------------------------------
 def staff_login(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -373,24 +398,24 @@ def staff_login(request):
     return render(request, 'accounts/staff_login.html')
 
 
+# ---------------------------------------------------------------------------
+# Logout
+# ---------------------------------------------------------------------------
 def logout_view(request):
     logout(request)
     return redirect('home')
 
 
+# ---------------------------------------------------------------------------
+# Profile
+# ---------------------------------------------------------------------------
 @login_required
 def profile(request):
-    profile_obj, _ = UserProfile.objects.get_or_create(
-        user=request.user
-    )
+    profile_obj, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        request.user.first_name = request.POST.get(
-            'first_name', ''
-        ).strip()
-        request.user.last_name = request.POST.get(
-            'last_name', ''
-        ).strip()
+        request.user.first_name = request.POST.get('first_name', '').strip()
+        request.user.last_name = request.POST.get('last_name', '').strip()
         request.user.email = request.POST.get('email', '').strip()
         request.user.save()
 
@@ -400,9 +425,7 @@ def profile(request):
         profile_obj.bio = request.POST.get('bio', '').strip()
 
         if request.FILES.get('profile_picture'):
-            profile_obj.profile_picture = request.FILES[
-                'profile_picture'
-            ]
+            profile_obj.profile_picture = request.FILES['profile_picture']
 
         profile_obj.save()
         messages.success(
